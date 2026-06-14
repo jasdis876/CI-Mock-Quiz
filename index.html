@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <title>STI Focus – 100 Self-Contained Practice Questions</title>
+  <title>STI Focus – 100 AI Generated Practice Questions</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -208,7 +208,8 @@
 
 <script>
 // ============================================================
-// 100 SELF-CONTAINED STI-FOCUSED QUESTIONS (no cross-references)
+// 100 SELF-CONTAINED STI-FOCUSED QUESTIONS – FULLY CORRECTED
+// No cross-references, TF statements fixed, HIV algorithm corrected.
 // ============================================================
 const QUESTION_SET = [
   { id:1, type:"MCQ", domain:"STI Syndromes", question:"A 25-year-old woman presents with a thin, homogeneous, fishy-odoured vaginal discharge that adheres to the vaginal walls. What is the most likely diagnosis?", options:["Candidiasis","Bacterial vaginosis","Trichomoniasis","Chlamydial cervicitis"], answer:1, explanation:"Thin, homogeneous, fishy discharge with positive whiff test is characteristic of bacterial vaginosis." },
@@ -240,8 +241,8 @@ const QUESTION_SET = [
   { id:27, type:"MCQ", domain:"STI Syndromes", question:"A 28-year-old diabetic woman reports recurrent thick, white vaginal discharge and intense itching. What is the most likely cause?", options:["Trichomoniasis","Candidiasis","Bacterial vaginosis","Chlamydia"], answer:1, explanation:"Thick, curdy discharge with pruritus, especially in a diabetic, is classic for vulvovaginal candidiasis." },
   { id:28, type:"MCQ", domain:"STI Syndromes", question:"What is the primary symptom of Trichomonas vaginalis infection in women?", options:["Frothy, thin, greenish discharge","Curdy, white discharge","Yellow mucopurulent discharge","No symptoms"], answer:0, explanation:"Trichomoniasis typically causes a profuse, thin, frothy, green‑yellow discharge with a foul odour." },
   { id:29, type:"MCQ", domain:"Syphilis", question:"Which laboratory test is most specific for Treponema pallidum infection?", options:["VDRL","TPHA","TRUST","RPR"], answer:1, explanation:"TPHA (Treponema pallidum haemagglutination assay) is a treponemal test with high specificity, used to confirm syphilis." },
-  { id:30, type:"MCQ", domain:"STI Syndromes", question:"A 32-year-old man has urethral discharge, dysuria, and no genital ulcers. What syndromic diagnosis should be assigned?", options:["Urethral discharge syndrome","Genital ulcer syndrome","Scrotal swelling syndrome","Lower abdominal pain syndrome"], answer:0, explanation:"Urethral discharge with dysuria and no ulcers is the classic urethral discharge syndrome." },
-  { id:31, type:"MCQ", domain:"STI Syndromes", question:"For the man in the previous question (urethral discharge), what is the recommended empiric therapy?", options:["Ceftriaxone + Doxycycline","Amoxicillin + Metronidazole","Gentamicin + Azithromycin","Ciprofloxacin + Erythromycin"], answer:0, explanation:"Urethral discharge is treated with ceftriaxone (for gonorrhoea) plus doxycycline (for chlamydia)." },
+  { id:30, type:"MCQ", domain:"STI Syndromes", question:"A 32-year-old man has urethral discharge and dysuria, but no genital ulcers. What syndromic diagnosis should be assigned?", options:["Urethral discharge syndrome","Genital ulcer syndrome","Scrotal swelling syndrome","Lower abdominal pain syndrome"], answer:0, explanation:"Urethral discharge with dysuria and no ulcers is the classic urethral discharge syndrome." },
+  { id:31, type:"MCQ", domain:"STI Syndromes", question:"A man with urethral discharge and dysuria (no ulcers) presents for treatment. What is the recommended empiric therapy?", options:["Ceftriaxone + Doxycycline","Amoxicillin + Metronidazole","Gentamicin + Azithromycin","Ciprofloxacin + Erythromycin"], answer:0, explanation:"Urethral discharge is treated with ceftriaxone (for gonorrhoea) plus doxycycline (for chlamydia)." },
   { id:32, type:"MCQ", domain:"STI Syndromes", question:"Chlamydia trachomatis infection in men can cause which complication?", options:["Orchitis","Candidiasis","Balanitis","Condylomata acuminata"], answer:0, explanation:"Chlamydia can cause epididymo‑orchitis in men as a complication." },
   { id:33, type:"MCQ", domain:"STI Syndromes", question:"What is the commonest cause of genital warts (condylomata acuminata)?", options:["HSV‑2","HPV types 6 and 11","HPV types 16 and 18","Molluscum contagiosum virus"], answer:1, explanation:"HPV types 6 and 11 are responsible for >90% of anogenital warts." },
   { id:34, type:"MCQ", domain:"STI Syndromes", question:"Anal cancer in Jamaica is strongly associated with which infection?", options:["HIV infection","HPV infection","Hepatitis B","Herpes zoster"], answer:1, explanation:"Persistent high‑risk HPV (especially type 16) is the main cause of anal cancer." },
@@ -258,7 +259,7 @@ const QUESTION_SET = [
   { id:45, type:"MCQ", domain:"STI Case Management", question:"What is the first step in effective case management of an STI patient?", options:["Laboratory testing","History and risk assessment","Treatment of the partner","Reporting to MOHW"], answer:1, explanation:"A thorough history and risk assessment guide syndromic diagnosis and management." },
   { id:46, type:"MCQ", domain:"HIV", question:"In Jamaica's national HIV testing algorithm, which test is used as the first rapid screening test?", options:["Uni‑Gold HIV‑1/2","Determine HIV‑1/2 Ag/Ab Combo","Western Blot","ELISA"], answer:1, explanation:"The Determine HIV‑1/2 Ag/Ab Combo is used as the initial screening test." },
   { id:47, type:"MCQ", domain:"HIV", question:"If the Determine HIV test is reactive, what is the next step in the Jamaican algorithm?", options:["PCR test","Uni‑Gold HIV rapid test","ELISA screening","Western Blot"], answer:1, explanation:"A second rapid test (Uni‑Gold) is used to confirm a reactive Determine result." },
-  { id:48, type:"MCQ", domain:"HIV", question:"If the first HIV test is negative and the second test (Uni‑Gold) is positive, what is the correct interpretation?", options:["Confirmed positive","Confirmed negative","Discordant – send to reference laboratory","Indeterminate – repeat in six months"], answer:2, explanation:"Discordant rapid test results require resolution by a tie‑breaker test or sending to reference lab." },
+  { id:48, type:"MCQ", domain:"HIV", question:"If the Determine HIV test is non‑reactive (negative), which of the following is correct according to the Jamaican algorithm?", options:["Run Uni‑Gold to confirm","Report as HIV negative – no further testing needed","Send for Western Blot","Repeat Determine in 2 weeks"], answer:1, explanation:"If Determine is negative, the algorithm stops and the result is reported as HIV negative. Uni‑Gold is only run if Determine is reactive." },
   { id:49, type:"MCQ", domain:"Contact Investigation", question:"Which of the following is NOT part of the role of a Contact Investigator after an HIV positive result?", options:["Partner notification and risk reduction counselling","Linkage to care and treatment site","Prescribing antiretroviral therapy","Home visit for re‑engagement if client defaults"], answer:2, explanation:"Prescribing ART is the role of a physician, not a Contact Investigator." },
   { id:50, type:"MCQ", domain:"HIV", question:"What is the current first‑line antiretroviral regimen for adults in Jamaica (2025 guidelines)?", options:["Zidovudine + Nevirapine + Efavirenz","Tenofovir + Lamivudine + Dolutegravir","Abacavir + Lamivudine + Atazanavir","Tenofovir + Emtricitabine + Lopinavir"], answer:1, explanation:"TDF/3TC/DTG is the preferred first‑line regimen." },
   { id:51, type:"MCQ", domain:"HIV", question:"To which class of antiretroviral drugs does dolutegravir belong?", options:["Protease inhibitors","Integrase strand transfer inhibitors","Nucleoside reverse transcriptase inhibitors","Non‑nucleoside reverse transcriptase inhibitors"], answer:1, explanation:"Dolutegravir is an integrase inhibitor." },
@@ -424,6 +425,7 @@ function renderCurrentQuestion() {
               </div>`;
     }).join('');
   } else {
+    // True/False – use the statement field
     const tfOptions = ['True', 'False'];
     optionsHtml = tfOptions.map((opt, idx) => {
       let additionalClass = '';
@@ -446,12 +448,15 @@ function renderCurrentQuestion() {
 
   const nextDisabled = !isAnswered;
 
+  // For TF questions, display the statement properly
+  const questionText = q.type === 'TF' ? q.statement : q.question;
+
   dynamicDiv.innerHTML = `
     <div class="question-panel">
       <div class="question-text">
         <span style="background:#eef2fa; padding:2px 12px; border-radius:40px; font-size:0.8rem; margin-right:12px;">Q${currentIndex+1}/${questions.length}</span>
-        ${escapeHtml(q.question)}
-        <button class="btn-secondary" style="margin-left:15px; background:#4b6f86; padding:6px 12px;" onclick="speakText('${escapeHtml(q.question)} ${q.options ? q.options.join('. ') : ''}')">🔊 Read aloud</button>
+        ${escapeHtml(questionText)}
+        <button class="btn-secondary" style="margin-left:15px; background:#4b6f86; padding:6px 12px;" onclick="speakText('${escapeHtml(questionText)}')">🔊 Read aloud</button>
       </div>
       <div class="options-area" id="optionsArea">
         ${optionsHtml}
