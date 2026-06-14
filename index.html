@@ -156,7 +156,6 @@
       gap: 8px;
     }
     button:active { transform: scale(0.96); }
-    .restart { background: #2c3e50; }
     .next-btn { background: #2b7a62; padding: 12px 32px; font-size: 1rem; }
     .voice-control {
       display: flex;
@@ -175,6 +174,24 @@
       border-top: 1px solid #e2edf7;
     }
     .finish-card { text-align: center; padding: 3rem; }
+    .summary-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+    .summary-table th, .summary-table td {
+      border: 1px solid #cbd5e1;
+      padding: 10px;
+      text-align: left;
+    }
+    .summary-table th {
+      background: #e2e8f0;
+    }
+    .weak {
+      background: #ffe3de;
+      color: #a71d2a;
+      font-weight: bold;
+    }
     h2 { color: #1f5e4a; margin-bottom: 1rem; }
     @media (max-width: 600px) {
       .question-text { font-size: 1.3rem; }
@@ -187,7 +204,7 @@
 <div class="exam-container" id="examApp">
   <div class="quiz-header">
     <div class="title">
-      <span>🦠</span> STI Focus – 100 Practice Questions
+      <span>🦠</span> STI Focus – 100 Questions
       <div class="disclaimer-badge">Practice only</div>
     </div>
     <div class="stats">
@@ -196,20 +213,20 @@
     </div>
   </div>
   <div class="warning-note">
-    ⚠️ <strong>Practice simulation</strong> – not a real certification exam. All questions are self‑contained.
+    ⚠️ <strong>Progress is saved automatically</strong> – you can close the page and resume later.
   </div>
   <div class="progress-area">
     <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
     <div class="progress-text" id="progressPercent">0% completed</div>
   </div>
   <div id="dynamicContent"></div>
-  <footer>🎧 Speaker reads question aloud • Speed slider adjusts voice rate</footer>
+  <footer>🎧 Speaker reads question aloud • Speed slider adjusts voice rate • Progress saves automatically</footer>
 </div>
 
 <script>
 // ============================================================
 // 100 SELF-CONTAINED STI-FOCUSED QUESTIONS – FULLY CORRECTED
-// No cross-references, TF statements fixed, HIV algorithm corrected.
+// Persistent storage, completion summary with weak areas.
 // ============================================================
 const QUESTION_SET = [
   { id:1, type:"MCQ", domain:"STI Syndromes", question:"A 25-year-old woman presents with a thin, homogeneous, fishy-odoured vaginal discharge that adheres to the vaginal walls. What is the most likely diagnosis?", options:["Candidiasis","Bacterial vaginosis","Trichomoniasis","Chlamydial cervicitis"], answer:1, explanation:"Thin, homogeneous, fishy discharge with positive whiff test is characteristic of bacterial vaginosis." },
@@ -314,7 +331,7 @@ const QUESTION_SET = [
   { id:100, type:"MCQ", domain:"STI Syndromes", question:"A 28-year-old man has anal discharge after receptive anal intercourse. Which syndrome should be considered?", options:["Anal discharge syndrome","Ophthalmia neonatorum","Candidiasis only","Congenital syphilis"], answer:0, explanation:"Anal discharge syndrome is the appropriate syndromic diagnosis." }
 ];
 
-// Shuffle questions for random order
+// Helper: shuffle array
 function shuffleArray(arr) {
   for (let i = arr.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -323,12 +340,50 @@ function shuffleArray(arr) {
   return arr;
 }
 
-let questions = shuffleArray([...QUESTION_SET]);
-let currentIndex = 0;
-let userAnswers = new Array(questions.length).fill(null);
-let score = 0;
-let answeredCount = 0;
+// Persistent storage keys
+const STORAGE_KEY = 'sti_exam_state';
 
+// Load or initialise state
+let savedState = null;
+try {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (raw) savedState = JSON.parse(raw);
+} catch(e) { /* ignore */ }
+
+let questions, userAnswers, score, answeredCount, currentIndex;
+
+if (savedState && savedState.version === 1 && savedState.questionSetHash === 'sti100_v1') {
+  // Restore saved progress
+  questions = savedState.questions;
+  userAnswers = savedState.userAnswers;
+  score = savedState.score;
+  answeredCount = savedState.answeredCount;
+  currentIndex = savedState.currentIndex;
+} else {
+  // Fresh start: shuffle questions, reset answers
+  questions = shuffleArray([...QUESTION_SET]);
+  userAnswers = new Array(questions.length).fill(null);
+  score = 0;
+  answeredCount = 0;
+  currentIndex = 0;
+  // Save initial state
+  saveState();
+}
+
+function saveState() {
+  const state = {
+    version: 1,
+    questionSetHash: 'sti100_v1',
+    questions: questions,
+    userAnswers: userAnswers,
+    score: score,
+    answeredCount: answeredCount,
+    currentIndex: currentIndex
+  };
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+// DOM elements
 const dynamicDiv = document.getElementById('dynamicContent');
 const correctSpan = document.getElementById('correctCount');
 const answeredSpan = document.getElementById('answeredCount');
@@ -345,6 +400,7 @@ function updateStats() {
   let percent = (answeredCount / questions.length) * 100;
   progressFill.style.width = `${percent}%`;
   progressPercentSpan.innerText = `${Math.round(percent)}% completed`;
+  saveState();
 }
 
 function speakText(text) {
@@ -370,16 +426,18 @@ function handleAnswer(selectedIdx) {
 function nextQuestion() {
   if (userAnswers[currentIndex] === null) return;
   currentIndex++;
+  saveState();
   renderCurrentQuestion();
 }
 
 function resetExam() {
+  // Only used for "Reset" from finish screen
   questions = shuffleArray([...QUESTION_SET]);
   userAnswers = new Array(questions.length).fill(null);
-  currentIndex = 0;
   score = 0;
   answeredCount = 0;
-  updateStats();
+  currentIndex = 0;
+  saveState();
   renderCurrentQuestion();
   if (speechSynth.speaking) speechSynth.cancel();
 }
@@ -394,16 +452,65 @@ function escapeHtml(str) {
   });
 }
 
+function renderCompletionSummary() {
+  // Group questions by domain
+  const domainStats = {};
+  for (let i = 0; i < questions.length; i++) {
+    const q = questions[i];
+    const domain = q.domain || 'Other';
+    if (!domainStats[domain]) {
+      domainStats[domain] = { total: 0, correct: 0 };
+    }
+    domainStats[domain].total++;
+    if (userAnswers[i] !== null && userAnswers[i] === q.answer) {
+      domainStats[domain].correct++;
+    }
+  }
+
+  let tableRows = '';
+  let weakDomains = [];
+  for (const [domain, stats] of Object.entries(domainStats)) {
+    const percent = Math.round((stats.correct / stats.total) * 100);
+    const isWeak = percent < 70;
+    if (isWeak) weakDomains.push(domain);
+    tableRows += `<tr class="${isWeak ? 'weak' : ''}">
+      <td>${escapeHtml(domain)}</td>
+      <td>${stats.correct} / ${stats.total}</td>
+      <td>${percent}%</td>
+    </tr>`;
+  }
+
+  let weakMessage = '';
+  if (weakDomains.length > 0) {
+    weakMessage = `<p style="margin-top:1rem; padding:1rem; background:#ffe3de; border-radius:1rem;">
+      <strong>⚠️ Weak areas:</strong> ${weakDomains.join(', ')}.<br>
+      Review these topics and retake the practice questions.
+    </p>`;
+  } else {
+    weakMessage = `<p style="margin-top:1rem; padding:1rem; background:#c8f0e4; border-radius:1rem;">
+      <strong>🎉 Excellent!</strong> You scored ≥70% in all topic areas.
+    </p>`;
+  }
+
+  dynamicDiv.innerHTML = `
+    <div class="finish-card">
+      <h2>🏆 Practice session completed! 🏆</h2>
+      <p style="font-size:1.6rem; margin:20px 0;">Your score: ${score} / ${questions.length}</p>
+      <p>${Math.round(score/questions.length*100)}% correct</p>
+      <h3>Performance by topic</h3>
+      <table class="summary-table">
+        <thead><tr><th>Topic</th><th>Correct / Total</th><th>%</th></tr></thead>
+        <tbody>${tableRows}</tbody>
+      </table>
+      ${weakMessage}
+      <button class="restart" onclick="resetExam()" style="background:#2c3e50; margin-top:1rem;">🔄 Start new session</button>
+    </div>
+  `;
+}
+
 function renderCurrentQuestion() {
   if (currentIndex >= questions.length) {
-    dynamicDiv.innerHTML = `
-      <div class="finish-card">
-        <h2>🏆 Practice session completed! 🏆</h2>
-        <p style="font-size:1.6rem; margin:20px 0;">Your score: ${score} / ${questions.length}</p>
-        <p>${Math.round(score/questions.length*100)}% correct</p>
-        <button class="restart" onclick="resetExam()">🔄 Start over</button>
-      </div>
-    `;
+    renderCompletionSummary();
     return;
   }
 
@@ -425,7 +532,6 @@ function renderCurrentQuestion() {
               </div>`;
     }).join('');
   } else {
-    // True/False – use the statement field
     const tfOptions = ['True', 'False'];
     optionsHtml = tfOptions.map((opt, idx) => {
       let additionalClass = '';
@@ -447,8 +553,6 @@ function renderCurrentQuestion() {
   }
 
   const nextDisabled = !isAnswered;
-
-  // For TF questions, display the statement properly
   const questionText = q.type === 'TF' ? q.statement : q.question;
 
   dynamicDiv.innerHTML = `
@@ -470,7 +574,6 @@ function renderCurrentQuestion() {
         <span id="rateValue">1.0x</span>
       </div>
       <div>
-        <button class="restart" onclick="resetExam()">⟳ Restart</button>
         <button id="nextBtn" class="next-btn" ${nextDisabled ? 'disabled style="opacity:0.5;"' : ''}>➡ Next question</button>
       </div>
     </div>
@@ -495,9 +598,9 @@ function renderCurrentQuestion() {
   }
 }
 
-window.speakText = speakText;
+// Make resetExam globally available for the finish screen button
 window.resetExam = resetExam;
-window.nextQuestion = nextQuestion;
+window.speakText = speakText;
 
 updateStats();
 renderCurrentQuestion();
